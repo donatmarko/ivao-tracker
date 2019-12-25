@@ -66,7 +66,7 @@ function getFlight(id)
 			c += '<tr><th>Mode-A:</th><td>' + data.mode_a + '</td></tr>';
 			c += '</table>';
 
-			c += '<em>Last tracked at ' + data.updated_at + '</em>';
+			c += '<em>Last tracked at ' + data.last_tracked_at + '</em>';
 
 			console.log("Flight data loaded: ", data);
 			$("#contentSession").html(c);
