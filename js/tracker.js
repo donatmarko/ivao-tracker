@@ -135,11 +135,11 @@ function loadSessions(vid = 0, callsign = '', cl = 0)
 	$('[name="vid"]').val(vid);
 	$('[name="client"]').val(cl);
 
-	if (vid == 540147)
+	/*if (vid == 540147)
 	{
 		alert('You must not search for the BOSS!');
 		return;
-	}
+	}*/
 
 	$.ajax({
 		cache: false,
