@@ -1,50 +1,17 @@
-var elements = [];
-var airportIcon = L.divIcon({className: 'fas fa-map-marker-alt'});
-var map = L.map('map', {
-	center: getMapCenter(),
-	zoom: getMapZoom(),
-	worldCopyJump: true,
-	minZoom: 3,
-	preferCanvas: false
-});
-map.on('moveend', mapStateSave);
-map.on('zoomend', mapStateSave);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
- 	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
-}).addTo(map);
-
-var sidebar = L.control.sidebar('sidebar').addTo(map);
-
-function getMapCenter()
-{
-	if (!Cookies.get("lat") || !Cookies.get("lon"))
-	{
-		Cookies.set("zoom", 5);
-		Cookies.set("lat", 47);
-		Cookies.set("lon", 15);
-	}
-	return [Cookies.get("lat"), Cookies.get("lon")];
-}
-
-function getMapZoom()
-{
-	if (!Cookies.get("zoom"))
-		Cookies.set("zoom", 5);
-	return Cookies.get("zoom");
-}
-
-function mapStateSave(e)
-{
-	Cookies.set("zoom", e.target.getZoom());
-	Cookies.set("lat", e.target.getCenter().lat);
-	Cookies.set("lon", e.target.getCenter().lng);
-}
-
 function clearMap()
 {
 	$.each(elements, function() {
 		map.removeLayer(this);
 	});
+	console.log("Map elements cleared.");
+}
+
+function clearMapOnline()
+{
+	$.each(onlineElems, function() {
+		map.removeLayer(this);
+	});
+	console.log("Online map elements cleared.");
 }
 
 function getFlight(id)
@@ -68,14 +35,13 @@ function getFlight(id)
 			if (!data.online)
 			{
 				c += '<th>Disconnected:</th><td>' + data.disconnected_at + '</td></tr>';
-				$("#txtPilotId").html(data.id);
+				$("#txtSessionId").html('Flight session #' + data.id);
 			}
 			else
-				$("#txtPilotId").html(data.id + ' (online)');
-			c += '<th>Duration:</th><td>' + data.duration + '</td></tr>';
+				$("#txtSessionId").html('Flight session #' + data.id + ' (online)');
 
-			c += '<th>Client:</th><td>' + data.software + '</td></tr>';
-			c += '<th>Simulator:</th><td>' + data.sim_type + '</td></tr>';
+			c += '<th>Duration:</th><td>' + data.duration + '</td></tr>';
+			c += '<th>Client (simulator):</th><td>' + data.software + ' (' + data.sim_type + ')</td></tr>';
 			c += '</table>';
 
 			var eobt = data.fp_deptime.padStart(4, '0');
@@ -93,10 +59,21 @@ function getFlight(id)
 			c += '<h4>ICAO flightplan:</h4>';
 			c += '<p><code>' + atcfpl + '</code></p>';
 
+			c += '<h4>Ops data (last recorded):</h4>';
+			c += '<table class="table table-striped table-sm">';
+			c += '<tr><th>Altitude:</th><td>' + data.altitude + ' ft</td></tr>';
+			c += '<tr><th>Groundspeed:</th><td>' + data.groundspeed + ' kts</td></tr>';
+			c += '<tr><th>Mode-A:</th><td>' + data.mode_a + '</td></tr>';
+			c += '</table>';
+
 			c += '<em>Last tracked at ' + data.updated_at + '</em>';
 
-			$("#contentFlight").html(c);
-			$("#modalFlight").modal("show");
+			console.log("Flight data loaded: ", data);
+			$("#contentSession").html(c);
+			$("#modalSession").modal("show");
+		},
+		error: function() {
+			alert("Failed to load flight data.");
 		}
 	});
 }
@@ -118,15 +95,16 @@ function getATC(id)
 			c += '<table class="table table-striped table-sm">';
 			c += '<th>Callsign:</th><td>' + data.callsign + '</td></tr>';
 			c += '<th>Connected:</th><td>' + data.connected_at + '</td></tr>';
+
 			if (!data.online)
 			{
 				c += '<th>Disconnected:</th><td>' + data.disconnected_at + '</td></tr>';
-				$("#txtATCId").html(data.id);
+				$("#txtSessionId").html('ATC session #' + data.id);
 			}
 			else
-				$("#txtATCId").html(data.id + ' (online)');
-			c += '<th>Duration:</th><td>' + data.duration + '</td></tr>';
+				$("#txtSessionId").html('ATC session #' + data.id + ' (online)');
 
+			c += '<th>Duration:</th><td>' + data.duration + '</td></tr>';
 			c += '<th>Client:</th><td>' + data.software + '</td></tr>';
 			c += '</table>';
 
@@ -141,9 +119,12 @@ function getATC(id)
 
 			c += '<em>Last tracked at ' + data.updated_at + '</em>';
 
-			$("#contentATC").html(c);
-
-			$("#modalATC").modal("show");
+			console.log("ATC data loaded: ", data);
+			$("#contentSession").html(c);
+			$("#modalSession").modal("show");
+		},
+		error: function() {
+			alert("Failed to load ATC data.");
 		}
 	});
 }
@@ -154,11 +135,11 @@ function loadSessions(vid = 0, callsign = '', cl = 0)
 	$('[name="vid"]').val(vid);
 	$('[name="client"]').val(cl);
 
-	// if (vid == 540147)
-	// {
-	// 	alert('You must not search for the BOSS!');
-	// 	return;
-	// }
+	if (vid == 540147)
+	{
+		alert('You must not search for the BOSS!');
+		return;
+	}
 
 	$.ajax({
 		cache: false,
@@ -175,14 +156,8 @@ function loadSessions(vid = 0, callsign = '', cl = 0)
 			tbl += '</thead>';
 			tbl += '<tbody>';
 
-			var twr = false, gnd = false, app = false, del = false;
-
 			$.each(data.sessions, function() {
-				if (this.online)
-					tbl += '<tr class="table-success">';
-				else
-					tbl += '<tr>';
-
+				tbl += this.online ? '<tr class="table-success">' : '<tr>';
 				if (this.type === "PILOT")
 				{
 					tbl += '<td><i class="fas fa-paper-plane" title="Flight" data-toggle="tooltip"></i></td>';
@@ -195,49 +170,6 @@ function loadSessions(vid = 0, callsign = '', cl = 0)
 				}
 				tbl += '<td>' + this.connected_at + '</td>';
 				tbl += '</tr>';
-
-				// if (this.type === "ATC")
-				// {
-				// 	if (this.callsign.endsWith('_GND') && !gnd)
-				// 	{
-				// 		gnd = true;
-				// 		console.log("Adding GND: ", this);
-				// 		elements.push(
-				// 			L.circle([this.latitude, this.longitude], 12000, {
-				// 				weight: 1,
-				// 				color: "#ff0",
-				// 				opacity: 1,
-				// 				fillOpacity: 0.5
-				// 			}).addTo(map)
-				// 		);
-				// 	}
-				// 	if (this.callsign.endsWith('_TWR') && !twr)
-				// 	{
-				// 		twr = true;
-				// 		console.log("Adding TWR: ", this);
-				// 		elements.push(
-				// 			L.circle([this.latitude, this.longitude], 20000, {
-				// 				weight: 1,
-				// 				color: "#ff6666",
-				// 				opacity: 0.5,
-				// 				fillOpacity: 0.3
-				// 			}).addTo(map)
-				// 		);
-				// 	}
-				// 	if (this.callsign.endsWith('_APP') && !app)
-				// 	{
-				// 		app = true;
-				// 		console.log("Adding APP: ", this);
-				// 		elements.push(
-				// 			L.circle([this.latitude, this.longitude], 40000, {
-				// 				weight: 1,
-				// 				color: "#00f",
-				// 				opacity: 0.4,
-				// 				fillOpacity: 0.2
-				// 			}).addTo(map)
-				// 		);
-				// 	}
-				// }
 
 				if (this.type === "PILOT")
 				{
@@ -294,5 +226,5 @@ $("#frmSearch").on('submit', function(e) {
 });
 
 $(document).ready(function() {
-	// loadSessions(0, 'EDDM%');
-})
+	// loadSessions(540147);
+});

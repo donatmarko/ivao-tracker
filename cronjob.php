@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 
 include('config-inc.php');
 require 'classes/whazzup.php';
-$wz = new Whazzup('https://ivao.donatus.hu/whazzup.json.txt', true);
+$wz = new Whazzup('https://api.donatus.hu/oavi/json/whazzup.json', true);
 
 $sql = new mysqli($sql_server, $sql_username, $sql_password, $sql_database);
 //$sql->autocommit(FALSE);
@@ -35,7 +35,7 @@ while ($row = $result->fetch_assoc())
 	];
 }
 
-$stmt_atc_i = $sql->prepare("INSERT INTO atcs (callsign, vid, rating, status, latitude, longitude, server, protocol, software, connected_at, frequency, radar_range, atis, atis_time, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");		
+$stmt_atc_i = $sql->prepare("INSERT INTO atcs (callsign, vid, rating, status, latitude, longitude, server, protocol, software, connected_at, frequency, radar_range, atis, atis_time, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
 $stmt_atc_u = $sql->prepare("UPDATE atcs SET latitude=?, longitude=?, frequency=?, radar_range=?, atis=?, atis_time=?, updated_at=now() WHERE callsign=? AND connected_at=?");
 
 $stmt_pilot_i = $sql->prepare("INSERT INTO pilots (callsign, vid, rating, status, latitude, longitude, server, protocol, software, connected_at, heading, on_ground, altitude, groundspeed, mode_a, fp_aircraft, fp_speed, fp_rfl, fp_departure, fp_destination, fp_alternate, fp_alternate2, fp_type, fp_pob, fp_route, fp_item18, fp_rev, fp_rule, fp_deptime, fp_eet, fp_endurance, sim_type, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
@@ -105,8 +105,7 @@ foreach ($atcs as $atc)
 							'email' => $mail_fromEmail
 						],
 						'to' => $mail_toEmail,
-						'cc' => 'srta14@ivao.aero',
-						'subject' => '[IVAO-HU] Non-validated KFOR controller online',
+						'subject' => '[oavi] Non-validated KFOR controller online',
 						'body' => Common::JsonToTable(json_encode($atc)) . "<p>Mail sent automatically, do not reply</p>"
 					])
 				]);
@@ -119,10 +118,8 @@ foreach ($pilots as $pilot)
 {	
 	if (array_key_exists($pilot['callsign'], $alreadyOnlines))
 	{
-		$stmt_pilot_u = $sql->prepare("UPDATE pilots SET latitude=?, longitude=?, heading=?, on_ground=?, altitude=?, groundspeed=?, mode_a=?, fp_aircraft=?, fp_speed=?, fp_rfl=?, fp_departure=?, fp_destination=?, fp_alternate=?, fp_alternate2=?, fp_type=?, fp_pob=?, fp_route=?, fp_item18=?, fp_rev=?, fp_rule=?, fp_deptime=?, fp_eet=?, fp_endurance=?, updated_at=now() WHERE callsign=? AND connected_at=?");
-
 		// if user is already online, we're updating its details	
-		$stmt_pilot_u->bind_param('ddiiiiisssssssssssissiiss', 
+		$stmt_pilot_u->bind_param('ddiiiiissssssssississiiss', 
 			$pilot['latitude'],
 			$pilot['longitude'],
 			$pilot['heading'],
@@ -157,9 +154,7 @@ foreach ($pilots as $pilot)
 	}
 	else
 	{
-		$stmt_pilot_i = $sql->prepare("INSERT INTO pilots (callsign, vid, rating, status, latitude, longitude, server, protocol, software, connected_at, heading, on_ground, altitude, groundspeed, mode_a, fp_aircraft, fp_speed, fp_rfl, fp_departure, fp_destination, fp_alternate, fp_alternate2, fp_type, fp_pob, fp_route, fp_item18, fp_rev, fp_rule, fp_deptime, fp_eet, fp_endurance, sim_type, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
-
-		$stmt_pilot_i->bind_param('sissddssssiiiiisssssssississiiss', 
+		$stmt_pilot_i->bind_param('sissddssssiiiiissssssssissisiiis', 
 			$pilot['callsign'],
 			$pilot['vid'],
 			$pilot['rating'],

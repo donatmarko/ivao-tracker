@@ -23,27 +23,29 @@ $client = isset($_GET['cl']) ? $_GET['cl'] : null;
 // ONLINE sessions
 if ($type == 1)
 {
-	$wz = new Whazzup('https://ivao.donatus.hu/whazzup.json.txt', true);
+	$wz = new Whazzup('https://api.donatus.hu/oavi/whazzup.txt', false);
 	$result = [];
 	
-	foreach ($wz->GetAll() as $client)
+	// if filtered to a specific member or session
+	if ($vid || $callsign)
 	{
-		if ($vid)
+		foreach ($wz->GetAll() as $client)
 		{
-			if ($client["vid"] == $vid)
-				$result[] = $client;
+			if ($vid)
+			{
+				if ($client["vid"] == $vid)
+					$result[] = $client;
+			}
+			if ($callsign)
+			{
+				if ($client["callsign"] == $callsign)
+					$result[] = $client;
+			}
 		}
-		if ($callsign)
-		{
-			if ($client["callsign"] == $callsign)
-				$result[] = $client;
-		}
-	}
-
-	if (count($result) == 1)
-		echo json_encode($result[0]);
-	else
 		echo json_encode($result);
+	}
+	else	// if we like to return every online member
+		echo json_encode($wz->GetAll());
 }
 
 // TRACKED sessions
@@ -60,7 +62,7 @@ if ($type == 0)
 	$sessions = [];
 	$airports = [];
 
-	$queryPilot = 'SELECT "PILOT" AS type, id, callsign, vid, rating, server, software, connected_at, disconnected_at, mode_a, fp_aircraft, fp_speed, fp_rfl, fp_departure, fp_destination, fp_alternate, fp_alternate2, fp_type, fp_pob, fp_route, fp_item18, fp_rule, fp_deptime, fp_eet, fp_endurance, sim_type, updated_at FROM pilots';
+	$queryPilot = 'SELECT "PILOT" AS type, id, callsign, vid, rating, server, software, connected_at, disconnected_at, latitude, longitude, altitude, groundspeed, mode_a, fp_aircraft, fp_speed, fp_rfl, fp_departure, fp_destination, fp_alternate, fp_alternate2, fp_type, fp_pob, fp_route, fp_item18, fp_rule, fp_deptime, fp_eet, fp_endurance, sim_type, updated_at FROM pilots';
 	$queryATC = 'SELECT "ATC" AS type, id, callsign, vid, rating, server, software, connected_at, disconnected_at, latitude, longitude, radar_range, frequency, atis, updated_at FROM atcs';
 	
 	if ($id && $client !== null)

@@ -9,7 +9,7 @@
 		<link rel="stylesheet" href="node_modules/sidebar-v2/css/leaflet-sidebar.min.css">
 		<link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.min.css">
 		<link rel="stylesheet" href="css/style.css">
-		<title>IVAO-HU Tracker</title>
+		<title>IVAO Better Tracker</title>
 	</head>
 
 	<body>
@@ -70,7 +70,7 @@
 					<h1 class="sidebar-header">Info<span class="sidebar-close"><i class="fas fa-caret-left"></i></span></h1>
 
 					<div style="text-align: center; margin-top: 1rem">
-						<h2>IVAO Hungary Tracker</h2>
+						<h2>IVAO Better Tracker</h2>
 						developed by Donat Marko
 					</div>
 				</div>
@@ -79,34 +79,16 @@
 
 		<div id="map" class="sidebar-map"></div>
 
-		<div class="modal fade" id="modalFlight" tabindex="-1" role="dialog">
+		<div class="modal fade" id="modalSession" tabindex="-1" role="dialog">
 			<div class="modal-dialog modal-lg" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h5 class="modal-title">Pilot session #<span id="txtPilotId"></span></h5>
+						<h5 class="modal-title" id="txtSessionId"></h5>
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
-					<div class="modal-body">
-						<div id="contentFlight"></div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="modal fade" id="modalATC" tabindex="-1" role="dialog">
-			<div class="modal-dialog modal-lg" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title">ATC session #<span id="txtATCId"></span></h5>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<div id="contentATC"></div>
-					</div>
+					<div class="modal-body" id="contentSession"></div>
 				</div>
 			</div>
 		</div>
@@ -119,6 +101,7 @@
 		<script src="node_modules/leaflet-arc/bin/leaflet-arc.min.js"></script>
 		<script src="node_modules/sidebar-v2/js/leaflet-sidebar.min.js"></script>
 		<script src="node_modules/js-cookie/src/js.cookie.js"></script>
+		<script src="node_modules/leaflet-rotatedmarker/leaflet.rotatedMarker.js"></script>
 		<script src="js/main.js"></script>
 		<script src="js/tracker.js"></script>
 	</body>
