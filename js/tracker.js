@@ -117,7 +117,7 @@ function getATC(id)
 			c += '<tr><th>ATIS:</th><td><code>' + data.atis.replace(/(\r\n\t|\n|\r\t|\\n)/gm, "<br>") + '</code></td></tr>';
 			c += '</table>';
 
-			c += '<em>Last tracked at ' + data.updated_at + '</em>';
+			c += '<em>Last tracked at ' + data.last_tracked_at + '</em>';
 
 			console.log("ATC data loaded: ", data);
 			$("#contentSession").html(c);
