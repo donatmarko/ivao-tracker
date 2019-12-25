@@ -62,8 +62,8 @@ if ($type == 0)
 	$sessions = [];
 	$airports = [];
 
-	$queryPilot = 'SELECT "PILOT" AS type, id, callsign, vid, rating, server, software, connected_at, disconnected_at, latitude, longitude, altitude, groundspeed, mode_a, fp_aircraft, fp_speed, fp_rfl, fp_departure, fp_destination, fp_alternate, fp_alternate2, fp_type, fp_pob, fp_route, fp_item18, fp_rule, fp_deptime, fp_eet, fp_endurance, sim_type, updated_at FROM pilots';
-	$queryATC = 'SELECT "ATC" AS type, id, callsign, vid, rating, server, software, connected_at, disconnected_at, latitude, longitude, radar_range, frequency, atis, updated_at FROM atcs';
+	$queryPilot = 'SELECT "PILOT" AS type, id, callsign, vid, rating, server, software, online, connected_at, disconnected_at, latitude, longitude, altitude, groundspeed, mode_a, fp_aircraft, fp_speed, fp_rfl, fp_departure, fp_destination, fp_alternate, fp_alternate2, fp_type, fp_pob, fp_route, fp_item18, fp_rule, fp_deptime, fp_eet, fp_endurance, sim_type, last_tracked_at FROM pilots';
+	$queryATC = 'SELECT "ATC" AS type, id, callsign, vid, rating, server, software, online, connected_at, disconnected_at, latitude, longitude, radar_range, frequency, atis, last_tracked_at FROM atcs';
 	
 	if ($id && $client !== null)
 	{
@@ -96,15 +96,14 @@ if ($type == 0)
 		$queryATC = $sql->query($queryATC);
 		while ($row = $queryATC->fetch_assoc())
 		{
-			if ($row["disconnected_at"] != "0000-00-00 00:00:00")
+			$row["online"] = $row["online"] == 1;
+			if ($row["online"])
 			{
-				$duration = strtotime($row["disconnected_at"]) - strtotime($row["connected_at"]);
-				$data["online"] = false;
+				$duration = time() - strtotime($row["connected_at"]);
 			}
 			else
 			{
-				$duration = time() - strtotime($row["connected_at"]);
-				$data["online"] = true;
+				$duration = strtotime($row["disconnected_at"]) - strtotime($row["connected_at"]);
 			}
 			$data["duration"] = date("H:i:s", $duration);
 
@@ -163,15 +162,14 @@ if ($type == 0)
 				$airports[$row["fp_destination"]]["arrivals"]++;
 			}
 
-			if ($row["disconnected_at"] != "0000-00-00 00:00:00")
+			$row["online"] = $row["online"] == 1;
+			if ($row["online"])
 			{
-				$duration = strtotime($row["disconnected_at"]) - strtotime($row["connected_at"]);
-				$data["online"] = false;
+				$duration = time() - strtotime($row["connected_at"]);
 			}
 			else
 			{
-				$duration = time() - strtotime($row["connected_at"]);
-				$data["online"] = true;
+				$duration = strtotime($row["disconnected_at"]) - strtotime($row["connected_at"]);
 			}
 			$data["duration"] = date("H:i:s", $duration);
 
