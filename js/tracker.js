@@ -6,14 +6,6 @@ function clearMap()
 	console.log("Map elements cleared.");
 }
 
-function clearMapOnline()
-{
-	$.each(onlineElems, function() {
-		map.removeLayer(this);
-	});
-	console.log("Online map elements cleared.");
-}
-
 function getFlight(id)
 {
 	$.ajax({

@@ -1,8 +1,16 @@
+function clearMapOnline()
+{
+	$.each(onlineElems, function() {
+		map.removeLayer(this);
+	});
+	console.log("Online map elements cleared.");
+}
+
 function loadOnlines()
 {
 	$.ajax({
 		cache: false,
-		url: "get.php?t=1",
+		url: "api/get_online.php",
 		success: function(data) {
 			clearMapOnline();
 
@@ -27,10 +35,20 @@ function loadOnlines()
 						L.marker([this.latitude, this.longitude], {
 							icon: iconPlane,
 							rotationAngle: this.heading,
-						}).on('click', function() { }).addTo(map)
+						}).on('click', function() { }).addTo(map).bindPopup(
+							"<b>" + this.callsign + "</b><br>" +
+							"VID: " + this.vid + "<br>" + 
+							"Rating: " + this.rating
+						)
 					);
+					
+					console.log('Flight marker added:', this);
 				}
 			});
 		}
 	});
 }
+
+$(document).ready(function() {
+	loadOnlines();
+});

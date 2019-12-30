@@ -1,0 +1,50 @@
+<!doctype html>
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+		<link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css">
+		<link rel="stylesheet" href="node_modules/sidebar-v2/css/leaflet-sidebar.min.css">
+		<link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+		<link rel="stylesheet" href="css/style.css">
+		<title>IVAO Better WebEye</title>
+	</head>
+
+	<body>
+		<div id="sidebar" class="sidebar collapsed">
+			<div class="sidebar-tabs">
+				<ul role="tablist">
+					<li><a href="#info" role="tab"><i class="fas fa-info"></i></a></li>
+				</ul>
+			</div>
+
+			<div class="sidebar-content">
+				<div class="sidebar-pane" id="info">
+					<h1 class="sidebar-header">Info<span class="sidebar-close"><i class="fas fa-caret-left"></i></span></h1>
+
+					<div style="text-align: center; margin-top: 1rem">
+						<h2>IVAO Better WebEye</h2>
+						developed by Donat Marko
+					</div>
+				</div>
+			</div>
+  	  	</div>
+
+		<div id="map" class="sidebar-map"></div>
+
+
+		<div class="loader"></div>
+		<script src="node_modules/jquery/dist/jquery.min.js"></script>
+		<script src="node_modules/popper.js/dist/umd/popper.min.js"></script>
+		<script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+		<script src="node_modules/leaflet/dist/leaflet.js"></script>
+		<script src="node_modules/leaflet-arc/bin/leaflet-arc.min.js"></script>
+		<script src="node_modules/sidebar-v2/js/leaflet-sidebar.min.js"></script>
+		<script src="node_modules/js-cookie/src/js.cookie.js"></script>
+		<script src="node_modules/leaflet-rotatedmarker/leaflet.rotatedMarker.js"></script>
+		<script src="js/main.js"></script>
+		<script src="js/webeye.js"></script>
+	</body>
+</html>
