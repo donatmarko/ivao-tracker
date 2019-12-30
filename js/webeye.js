@@ -4,33 +4,24 @@ function getFlight(id)
 {
 	$.ajax({
 		cache: false,
-		url: "api/get_opsdata.php",
-		data: { id: id },
+		url: "api/get_tracker.php",
+		data: { id: id, with_path: 1 },
 		success: function(data) {
 			clearFltRoute();
+			
+			var html = '';
+			html += '<h2>' + data.callsign + '</h2>';
+			$('#txtFlightData').html(html);
+		
 			var latlons = [];
 			
-			$.each(data, function() {
+			$.each(data.paths, function() {
 				latlon = [this.latitude, this.longitude];
 				latlons.push(latlon)
 			});
-			
 			fltRoute.push(L.polyline(latlons, {color: 'red'}).addTo(map));
-			
-			
-			$.ajax({
-				cache: false,
-				url: "api/get_tracker.php",
-				data: { id: id },
-				success: function(data) {
-					var html = '';
-					html += '<h2>' + data.callsign + '</h2>';
-					
-					$('#txtFlightData').html(html);
-				}
-			});
-			
-			console.log('Flight route added:', data);
+		
+			console.log('Flight data added:', data);
 		},
 		error: function() {
 			alert("Failed to load flight route.");

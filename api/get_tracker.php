@@ -14,9 +14,12 @@ $vid = isset($_GET['vid']) && !empty($_GET['vid']) ? $_GET['vid'] : null;
 // Callsign
 $callsign = isset($_GET['cs']) && !empty($_GET['cs'] && $_GET['cs'] !== '%') ? strtoupper($_GET['cs']) : null;
 
+// Client
+$client = isset($_GET['cl']) ? $_GET['cl'] : null;
+
 // Session ID
 $id = isset($_GET['id']) ? $_GET['id'] : null;
-$client = isset($_GET['cl']) ? $_GET['cl'] : null;
+$with_path = isset($_GET['with_path']) && $_GET['with_path'] == '1';
 
 $sql = new mysqli($sql_server, $sql_username, $sql_password, $sql_database);
 if ($sql->connect_error)
@@ -140,6 +143,18 @@ if ($client == 0 || $client == 2)
 			$duration = strtotime($row["disconnected_at"]) - strtotime($row["connected_at"]);
 		}
 		$data["duration"] = date("H:i:s", $duration);
+		
+		if ($with_path)
+		{
+			$paths = [];
+			$query = $sql->query('SELECT * FROM pilot_positions WHERE session_id = ' . $id);
+			while ($path = $query->fetch_assoc())
+			{
+				$paths[$path['tracked_at']] = $path;
+			}
+			
+			$data["paths"] = $paths;
+		}
 
 		$sessions[] = array_merge($row, $data);
 	}
