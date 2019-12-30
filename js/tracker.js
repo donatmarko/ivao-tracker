@@ -215,11 +215,53 @@ function loadSessions(vid = 0, callsign = '', cl = 0)
 	});
 }
 
+function showRoute(id)
+{
+	$.ajax({
+		cache: false,
+		url: "api/get_opsdata.php",
+		data: { id: id },
+		success: function(data) {
+			$("#modalSession").modal("hide");
+			clearFltRoute();
+			var latlons = [];
+			
+			$.each(data, function() {
+				latlon = [this.latitude, this.longitude];
+				latlons.push(latlon)
+				
+				fltRoute.push(
+					L.marker(latlon, {
+						icon: airportIcon,
+						title: this.tracked_at
+					}).addTo(map).bindPopup(
+						"<table>" +
+						"<tr><td>Latitude</td><td>"+ this.latitude + "</td></tr>" +
+						"<tr><td>Longitude</td><td>"+ this.longitude + "</td></tr>" +
+						"<tr><td>Altitude</td><td>"+ this.altitude + "</td></tr>" +
+						"<tr><td>Groundspeed</td><td>"+ this.groundspeed + "</td></tr>" +
+						"<tr><td>Heading</td><td>"+ this.heading + "</td></tr>" +
+						"</table>"
+					)
+				);
+			});
+			
+			fltRoute.push(
+				L.polyline(latlons, {color: 'red'}).addTo(map)
+			);
+			
+			console.log('Flight route added:', data);
+		},
+		error: function() {
+			alert("Failed to load flight route.");
+		}
+	});
+}
+
 $("#frmSearch").on('submit', function(e) {
 	e.preventDefault();
 	loadSessions($('[name="vid"]').val(), $('[name="callsign"]').val(), $('[name="client"]').val());
 });
 
 $(document).ready(function() {
-	loadSessions(117281, null, 0);
 });

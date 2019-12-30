@@ -30,10 +30,10 @@ if ($sqlnav->connect_error)
 $sessions = [];
 $airports = [];
 
-$queryPilot = 'SELECT "PILOT" AS type, id, callsign, vid, rating, server, software, online, connected_at, disconnected_at, latitude, longitude, altitude, groundspeed, mode_a, fp_aircraft, fp_speed, fp_rfl, fp_departure, fp_destination, fp_alternate, fp_alternate2, fp_type, fp_pob, fp_route, fp_item18, fp_rule, fp_deptime, fp_eet, fp_endurance, sim_type, last_tracked_at FROM pilots WHERE id = 495263';
+$queryPilot = 'SELECT "PILOT" AS type, id, callsign, vid, rating, server, software, online, connected_at, disconnected_at, latitude, longitude, altitude, groundspeed, mode_a, fp_aircraft, fp_speed, fp_rfl, fp_departure, fp_destination, fp_alternate, fp_alternate2, fp_type, fp_pob, fp_route, fp_item18, fp_rule, fp_deptime, fp_eet, fp_endurance, sim_type, last_tracked_at FROM pilots';
 $queryATC = 'SELECT "ATC" AS type, id, callsign, vid, rating, server, software, online, connected_at, disconnected_at, latitude, longitude, radar_range, frequency, atis, last_tracked_at FROM atcs';
-/*
-if ($id && $client !== null)
+
+if ($id)
 {
 	$queryPilot .= ' WHERE id=' . $id;
 	$queryATC .= ' WHERE id=' . $id;
@@ -54,12 +54,12 @@ else if ($callsign)
 	$queryATC .= ' WHERE callsign LIKE "' . $callsign . '"';
 }
 else
-	die(json_encode(['error' => 'incorrect filter']));*/
+	die(json_encode(['error' => 'incorrect filter']));
 
 $queryPilot .= ' ORDER BY connected_at DESC';
 $queryATC .= ' ORDER BY connected_at DESC';
 
-/*if ($client == 0 || $client == 1)
+if ($client == 0 || $client == 1)
 {
 	$queryATC = $sql->query($queryATC);
 	while ($row = $queryATC->fetch_assoc())
@@ -77,7 +77,7 @@ $queryATC .= ' ORDER BY connected_at DESC';
 
 		$sessions[] = array_merge($row, $data);
 	}
-}*/
+}
 
 if ($client == 0 || $client == 2)
 {
