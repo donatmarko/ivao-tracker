@@ -6,7 +6,6 @@ header("Content-Type: application/json");
 date_default_timezone_set('Etc/UTC');
 
 include('config-inc.php');
-require 'classes/whazzup.php';
 
 // Session ID
 $id = isset($_GET['id']) ? $_GET['id'] : null;
@@ -16,7 +15,8 @@ if ($sql->connect_error)
 	die('Connection failed: ' . $sql->connect_error);
 $sql->query("SET time_zone = 'Etc/UTC'");
 
-$query = $sql->query("SELECT *, 'PILOT' AS type FROM pilots WHERE online = 1");
+
+$query = $sql->query('SELECT * FROM pilot_positions WHERE session_id = "' . $id . '" ORDER BY tracked_at');
 
 $rows = [];
 while ($row = $query->fetch_assoc())

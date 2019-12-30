@@ -14,8 +14,8 @@ function loadOnlines()
 		success: function(data) {
 			clearMapOnline();
 
-			$.each(data, function() {
-				if (this.type === "PILOT" && !this.on_ground && (this.fp_departure.length > 0 && this.fp_destination.length > 0))
+			$.each(data, function() {				
+				if (this.type == "PILOT" && (this.fp_departure.length > 0 && this.fp_destination.length > 0))
 				{
 					var rule = '';
 					switch (this.fp_rule)
@@ -30,16 +30,16 @@ function loadOnlines()
 							rule = this.fp_rule;
 							break;
 					}
-
+					
 					onlineElems.push(
 						L.marker([this.latitude, this.longitude], {
 							icon: iconPlane,
 							rotationAngle: this.heading,
-						}).on('click', function() { }).addTo(map).bindPopup(
-							"<b>" + this.callsign + "</b><br>" +
-							"VID: " + this.vid + "<br>" + 
-							"Rating: " + this.rating
-						)
+							rotationOrigin: 'center'
+						}).on('click', function(e) {
+							showRoute(this.id, [this.latitude, this.longitude]);
+						}, this)
+						.addTo(map).bindTooltip('<b>' + this.callsign + '</b>')
 					);
 					
 					console.log('Flight marker added:', this);

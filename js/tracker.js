@@ -48,7 +48,7 @@ function getFlight(id)
 				'-' + data.fp_item18 + '<br>' +
 				'E/' + endurance + ' P/' + data.fp_pob + ')';
 
-			c += '<h4>ICAO flightplan:</h4>';
+			c += '<h4>ICAO flightplan: <button class="btn btn-sm btn-primary" onclick="showRoute(' + data.id + ')">Show route on map</button></h4>';
 			c += '<p><code>' + atcfpl + '</code></p>';
 
 			c += '<h4>Ops data (last recorded):</h4>';
@@ -167,6 +167,15 @@ function loadSessions(vid = 0, callsign = '', cl = 0)
 						{
 							console.log("Adding flight: ", this);
 
+							this.departure.lon = 180 - this.departure.lon;
+							this.destination.lon = 180 - this.destination.lon;
+							
+							x = this.departure;
+							y = this.destination;
+							
+							this.departure = y;
+							this.destination = x;
+							
 							elements.push(
 								L.Polyline.Arc([this.destination.lat, this.destination.lon], [this.departure.lat, this.departure.lon], {
 									color: 'blue',
@@ -212,5 +221,5 @@ $("#frmSearch").on('submit', function(e) {
 });
 
 $(document).ready(function() {
-	
+	loadSessions(117281, null, 0);
 });
