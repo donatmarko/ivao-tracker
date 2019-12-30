@@ -18,7 +18,7 @@ function getFlight(id)
 {
 	$.ajax({
 		cache: false,
-		url: "get.php?t=0&cl=2",
+		url: "api/get_tracker.php?cl=2",
 		data: { id: id },
 		success: function(data) {
 			var c = '<h4>Member details:</h4>';
@@ -82,7 +82,7 @@ function getATC(id)
 {
 	$.ajax({
 		cache: false,
-		url: "get.php?t=0&cl=1",
+		url: "api/get_tracker.php?cl=1",
 		data: { id: id },
 		success: function(data) {
 			var c = '<h4>Member details:</h4>';
@@ -135,15 +135,9 @@ function loadSessions(vid = 0, callsign = '', cl = 0)
 	$('[name="vid"]').val(vid);
 	$('[name="client"]').val(cl);
 
-	/*if (vid == 540147)
-	{
-		alert('You must not search for the BOSS!');
-		return;
-	}*/
-
 	$.ajax({
 		cache: false,
-		url: "get.php?t=0",
+		url: "api/get_tracker.php",
 		data: { vid: vid, cs: callsign, cl: cl },
 		success: function(data) {
 			var tbl = '<table class="table table-striped table-sm table-hover">';
@@ -226,5 +220,5 @@ $("#frmSearch").on('submit', function(e) {
 });
 
 $(document).ready(function() {
-	// loadSessions(540147);
+	
 });
