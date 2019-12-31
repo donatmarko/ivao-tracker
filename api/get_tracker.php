@@ -150,7 +150,7 @@ if ($client == 0 || $client == 2)
 			$query = $sql->query('SELECT * FROM pilot_positions WHERE session_id = ' . $id);
 			while ($path = $query->fetch_assoc())
 			{
-				$paths[$path['tracked_at']] = $path;
+				$paths[] = $path;
 			}
 			
 			$data["paths"] = $paths;
