@@ -147,7 +147,7 @@ if ($client == 0 || $client == 2)
 		if ($with_path)
 		{
 			$paths = [];
-			$query = $sql->query('SELECT * FROM pilot_positions WHERE (latitude > 0 AND longitude > 0) AND session_id = ' . $id);
+			$query = $sql->query('SELECT * FROM pilot_positions WHERE (latitude != 0 AND longitude != 0) AND session_id = ' . $id);
 			while ($path = $query->fetch_assoc())
 			{
 				$paths[] = $path;
