@@ -105,7 +105,7 @@ function loadOnlines()
 						}).on('click', function(e) {
 							toggleRoute(this.id);
 						}, this)
-						.addTo(map).bindTooltip('<b>' + this.callsign + '</b>')
+						.addTo(map).bindTooltip('<b>' + this.callsign + '</b>', {direction: 'top', offset: L.point(0, -13)})
 					);
 					
 					console.log('Flight marker added:', this);
