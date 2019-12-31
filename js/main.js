@@ -10,10 +10,14 @@ var iconPlane = L.icon({
 	iconUrl: 'img/plane/plane24x24.png',
 	iconSize: [24, 24]
 });
+
 var onlineElems = [];
 var elements = [];
 var fltRoute = [];
+var airportMarkers = [];
+
 var airportIcon = L.divIcon({className: 'fas fa-map-marker-alt'});
+var dotIcon = L.divIcon({className: 'fas fa-circle my-doticon'});
 var map = L.map('map', {
 	center: getMapCenter(),
 	zoom: getMapZoom(),
@@ -61,4 +65,12 @@ function clearFltRoute()
 		map.removeLayer(this);
 	});
 	console.log("Flight route cleared.");
+}
+
+function clearAirports()
+{
+	$.each(airportMarkers, function() {
+		map.removeLayer(this);
+	});
+	console.log("Airport markers cleared.");
 }

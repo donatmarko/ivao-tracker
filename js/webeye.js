@@ -1,6 +1,8 @@
 var activeSession = 0;
+var activeAirport = 0;
+var activeFunction = 0;
 
-function getFlight(id)
+function getFlight(id, open_tab = false)
 {
 	$.ajax({
 		cache: false,
@@ -55,9 +57,87 @@ function getFlight(id)
 			}
 		
 			console.log('Flight data added:', data);
+			
+			if (open_tab)
+			{
+				activeSession = id;
+				activeFunction = 'route';
+				tabOnlineFlight(true);
+			}
 		},
 		error: function() {
 			alert("Failed to load flight route.");
+		}
+	});
+}
+
+function getAirport(icao, open_tab = false)
+{
+	$.ajax({
+		cache: false,
+		url: "api/get_airport.php",
+		data: { icao: icao },
+		success: function(data) {
+			clearFltRoute();
+			
+			var html = '';
+			html += '<h2>' + data.icao + '</h2>';
+			html += '<p>' + data.name + '</p>';
+			
+			if (data.arrivals.length > 0)
+			{
+				html += '<h5>Inbound flights:</h5>';
+				html += '<table class="table table-sm table-hover">';
+				html += '<thead>';
+				html += '<tr>';
+				html += '<th>Callsign</th>';
+				html += '<th>Origin</th>';
+				html += '</tr>';
+				html += '</thead>';
+				html += '<tbody>';
+				$.each(data.arrivals, function() {
+					html += '<tr>';
+					html += '<td><a href="javascript:void(0)" onclick="getFlight(' + this.id + ', true)">' + this.callsign + '</a></td>';
+					html += '<td>' + this.origin + '</td>';
+					html += '</tr>';
+				});
+				html += '</tbody>';
+				html += '</table>';
+			}
+			
+			if (data.departures.length > 0)
+			{
+				html += '<h5>Outbound flights:</h5>';
+				html += '<table class="table table-sm table-hover">';
+				html += '<thead>';
+				html += '<tr>';
+				html += '<th>Callsign</th>';
+				html += '<th>Destination</th>';
+				html += '</tr>';
+				html += '</thead>';
+				html += '<tbody>';
+				$.each(data.departures, function() {
+					html += '<tr>';
+					html += '<td><a href="javascript:void(0)" onclick="getFlight(' + this.id + ', true)">' + this.callsign + '</a></td>';
+					html += '<td>' + this.destination + '</td>';
+					html += '</tr>';
+				});
+				html += '</tbody>';
+				html += '</table>';
+			}
+			
+			
+			$('#txtAirport').html(html);
+			
+			if (open_tab)
+			{
+				activeAirport = icao;
+				activeFunction = 'airport';
+				tabAirport(true);
+			}
+		},
+		error: function() {
+			alert("Failed to load airport data.");
 		}
 	});
 }
@@ -77,12 +157,32 @@ function tabOnlineFlight(active)
 		$('#sidebar').removeClass('collapsed');
 		$('#info').removeClass('active');
 		$('#online_flight').addClass('active');
+		$('#airport').removeClass('active');
 	}
 	else
 	{
 		$('#sidebar').addClass('collapsed');
 		$('#info').removeClass('active');
 		$('#online_flight').removeClass('active');
+		$('#airport').removeClass('active');
+	}
+}
+
+function tabAirport(active)
+{
+	if (active)
+	{
+		$('#sidebar').removeClass('collapsed');
+		$('#info').removeClass('active');
+		$('#online_flight').removeClass('active');
+		$('#airport').addClass('active');
+	}
+	else
+	{	
+		$('#sidebar').addClass('collapsed');
+		$('#info').removeClass('active');
+		$('#online_flight').removeClass('active');
+		$('#airport').removeClass('active');
 	}
 }
 
@@ -94,7 +194,7 @@ function loadOnlines()
 		success: function(data) {
 			clearMapOnline();
 
-			$.each(data, function() {
+			$.each(data.sessions, function() {
 				if (this.type == "PILOT" && this.on_ground == 0 && (this.fp_departure.length > 0 && this.fp_destination.length > 0))
 				{	
 					onlineElems.push(
@@ -111,13 +211,30 @@ function loadOnlines()
 					console.log('Flight marker added:', this);
 				}
 			});
+			
+			clearAirports();
+			$.each(data.airports, function() {
+				if (this.lat > 0 && this.lon > 0)
+				{
+					airportMarkers.push(
+						L.marker([this.lat, this.lon], {
+							icon: dotIcon,
+							title: this.icao
+						}).on('click', function(e) {
+							toggleAirport(this.icao);
+						}, this)
+						.addTo(map).bindTooltip('<b>' + this.icao + '</b>', {direction: 'top', offset: L.point(-3, -10)})
+					);
+					console.log('Airport marker added:', this);
+				}
+			});
 		}
 	});
 }
 
 function toggleRoute(id)
 {
-	if (activeSession == id)
+	if (activeSession == id && activeFunction == 'route')
 	{
 		clearFltRoute();
 		activeSession = 0;
@@ -125,9 +242,20 @@ function toggleRoute(id)
 	}
 	else
 	{
-		getFlight(id);
-		activeSession = id;
-		tabOnlineFlight(true);
+		getFlight(id, true);
+	}	
+}
+
+function toggleAirport(icao)
+{
+	if (activeAirport == icao && activeFunction == 'airport')
+	{
+		activeAirport = 0;
+		tabAirport(false);
+	}
+	else
+	{
+		getAirport(icao, true);
 	}	
 }
 
@@ -135,9 +263,13 @@ function autoUpdate()
 {
 	loadOnlines();
 	
-	if (activeSession > 0)
+	if (activeFunction == 'route' && activeSession > 0)
 	{
 		getFlight(activeSession);
+	}
+	if (activeFunction == 'airport' && activeAirport > 0)
+	{
+		getAirport(activeAirport);
 	}
 	
 	setTimeout(autoUpdate, 30000);

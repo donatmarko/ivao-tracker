@@ -35,3 +35,7 @@ html, body, #map, .row {
 .sidebar {
 	z-index: 450;
 }
+.my-doticon {
+	font-size: 50%;
+	color: #777
+}
